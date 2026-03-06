@@ -20,7 +20,6 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // 초기 상태를 useMemo로 메모이제이션
   const initialStudentInfo = useMemo<StudentInfo>(() => ({
     name: '',
     goodSubjects: [],
@@ -32,7 +31,6 @@ const App = () => {
   }), [])
 
   const handleGenerate = useCallback(async () => {
-    // 최소 하나의 항목 입력 확인
     const hasInput =
       studentInfo.name.trim() !== '' ||
       studentInfo.goodSubjects.length > 0 ||
@@ -58,7 +56,6 @@ const App = () => {
         target_length: studentInfo.targetLength,
         model_name: studentInfo.modelName,
       })
-
       setOpinions(data.opinions)
     } catch (err) {
       setError(err instanceof Error ? err.message : '의견 생성 중 오류가 발생했습니다.')
@@ -68,9 +65,7 @@ const App = () => {
   }, [studentInfo])
 
   const handleRefresh = useCallback(() => {
-    if (opinions.length > 0) {
-      handleGenerate()
-    }
+    if (opinions.length > 0) handleGenerate()
   }, [opinions.length, handleGenerate])
 
   const handleReset = useCallback(() => {
@@ -103,50 +98,101 @@ const App = () => {
   })
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 to-indigo-100 lg:overflow-hidden overflow-auto flex flex-col">
-      <div className="flex-1 lg:overflow-hidden container mx-auto px-4 py-4 max-w-7xl">
-        <div className="h-full flex flex-col lg:flex-row gap-4">
-          {/* 왼쪽: 입력 영역 */}
-          <div className="flex-shrink-0 lg:w-96 flex flex-col lg:overflow-y-auto overflow-visible">
-            <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
-              <ModelSelector
-                modelName={studentInfo.modelName}
-                onChange={handleModelChange}
-              />
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg p-4 flex-1">
-              <StudentInfoForm
-                studentInfo={studentInfo}
-                onChange={handleStudentInfoChange}
-                onGenerate={handleGenerate}
-                isLoading={isLoading}
-                error={error}
-              />
-            </div>
+    <div
+      style={{
+        display: 'flex',
+        height: '100dvh',
+        overflow: 'hidden',
+        background: 'var(--ink-dark)',
+      }}
+    >
+      {/* ── LEFT: dark ink panel ── */}
+      <div
+        className="ink-scroll"
+        style={{
+          width: '360px',
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          overflowY: 'auto',
+          background: 'var(--ink-mid)',
+          borderRight: '1px solid var(--ink-border)',
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            flexShrink: 0,
+            padding: '1.4rem 1.5rem 1.2rem',
+            borderBottom: '1px solid var(--ink-border)',
+          }}
+        >
+          <div
+            style={{
+              fontFamily: 'IBM Plex Mono, monospace',
+              fontSize: '0.65rem',
+              letterSpacing: '0.18em',
+              color: 'var(--amber)',
+              textTransform: 'uppercase',
+              marginBottom: '0.45rem',
+            }}
+          >
+            Teacher's Assistant
           </div>
-
-          {/* 오른쪽: 결과 영역 */}
-          <div className="flex-1 lg:overflow-y-auto overflow-visible">
-            {opinions.length > 0 ? (
-              <OpinionResults
-                opinions={opinions}
-                onRefresh={handleRefresh}
-                isLoading={isLoading}
-              />
-            ) : (
-              <div className="bg-white rounded-lg shadow-lg p-8 h-full flex items-center justify-center">
-                <p className="text-gray-500 text-center">
-                  학생 정보를 입력하고 의견 생성을 클릭하세요
-                </p>
-              </div>
-            )}
-          </div>
+          <h1
+            style={{
+              fontFamily: 'Noto Serif KR, serif',
+              fontSize: '1.2rem',
+              fontWeight: 700,
+              color: 'var(--chalk)',
+              margin: 0,
+              lineHeight: 1.4,
+            }}
+          >
+            학생 생활통지표
+            <br />
+            <span style={{ fontWeight: 400, fontSize: '1rem', color: 'var(--chalk-dim)' }}>
+              평어 생성기
+            </span>
+          </h1>
         </div>
+
+        {/* Model selector */}
+        <div
+          style={{
+            flexShrink: 0,
+            padding: '1rem 1.5rem',
+            borderBottom: '1px solid var(--ink-border)',
+          }}
+        >
+          <ModelSelector modelName={studentInfo.modelName} onChange={handleModelChange} />
+        </div>
+
+        {/* Form */}
+        <div style={{ flex: 1, padding: '1rem 1.5rem 1.5rem' }}>
+          <StudentInfoForm
+            studentInfo={studentInfo}
+            onChange={handleStudentInfoChange}
+            onGenerate={handleGenerate}
+            isLoading={isLoading}
+            error={error}
+          />
+        </div>
+      </div>
+
+      {/* ── RIGHT: cream paper panel ── */}
+      <div
+        className="paper-panel"
+        style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+      >
+        <OpinionResults
+          opinions={opinions}
+          onRefresh={handleRefresh}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   )
 }
 
 export default App
-
