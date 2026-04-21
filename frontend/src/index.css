@@ -221,7 +221,7 @@ body {
 
 /* ─── Section label ─── */
 .section-label {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'IBM Plex Mono', 'Noto Sans KR', monospace;
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -237,7 +237,7 @@ body {
   font-size: 0.7rem;
   color: var(--paper-muted);
   cursor: pointer;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'IBM Plex Mono', 'Noto Sans KR', monospace;
   transition: all 0.15s;
   white-space: nowrap;
 }
@@ -317,4 +317,25 @@ body {
 .refresh-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ─── Parchment left panel (light theme override) ─── */
+.parchment-left {
+  --ink-mid:     #ede6d8;
+  --ink-surface: #faf7f0;
+  --ink-border:  #c8bcaa;
+  --ink-muted:   #9a8878;
+  --chalk:       #1a1510;
+  --chalk-dim:   #6b5a48;
+  --amber:       #b06a08;
+  --amber-light: #d4820a;
+  --amber-glow:  rgba(176, 106, 8, 0.14);
+}
+
+.parchment-left .btn-generate {
+  color: #fff8ee;
+}
+
+.parchment-left .btn-generate:disabled {
+  color: var(--ink-muted);
 }

@@ -43,7 +43,7 @@ const ModelSelector = ({ modelName, onChange }: ModelSelectorProps) => {
       <label
         style={{
           display: 'block',
-          fontFamily: 'IBM Plex Mono, monospace',
+          fontFamily: "'IBM Plex Mono', 'Noto Sans KR', monospace",
           fontSize: '0.65rem',
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
@@ -81,7 +81,7 @@ const ModelSelector = ({ modelName, onChange }: ModelSelectorProps) => {
               <option
                 key={model.name}
                 value={model.name}
-                style={{ background: '#1c1814', color: '#e8dfd4' }}
+                style={{ background: 'var(--ink-surface)', color: 'var(--chalk)' }}
               >
                 {model.display_name || model.name}
               </option>

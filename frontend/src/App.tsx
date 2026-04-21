@@ -101,7 +101,7 @@ const App = () => {
     <div className="app-layout">
       {/* ── LEFT: dark ink panel ── */}
       <div
-        className="ink-scroll left-panel"
+        className="ink-scroll left-panel parchment-left"
         style={{
           display: 'flex',
           flexDirection: 'column',

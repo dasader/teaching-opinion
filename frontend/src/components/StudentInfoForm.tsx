@@ -300,7 +300,7 @@ const StudentInfoForm = ({ studentInfo, onChange, onGenerate, isLoading, error }
           textAlign: 'center',
           fontSize: '0.62rem',
           color: 'var(--ink-muted)',
-          fontFamily: 'IBM Plex Mono, monospace',
+          fontFamily: "'IBM Plex Mono', 'Noto Sans KR', monospace",
           letterSpacing: '0.05em',
         }}
       >
