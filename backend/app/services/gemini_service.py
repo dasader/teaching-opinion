@@ -13,6 +13,7 @@ CURATED_MODELS = [
     {"name": "gemini-3.1-flash-lite-preview","display_name": "Gemini 3.1 Flash Lite Preview (경량)"},
 ]
 DEFAULT_MODEL = "gemini-3-flash-preview"
+_VALID_MODEL_NAMES = {m["name"] for m in CURATED_MODELS}
 
 
 class GeminiService:
@@ -96,8 +97,7 @@ JSON 형식으로만 응답해주세요. 다른 설명 없이 배열만 반환�
 
     def _resolve_model_id(self, model_name: str) -> str:
         model_id = model_name.replace('models/', '') if model_name else DEFAULT_MODEL
-        valid_names = {m["name"] for m in CURATED_MODELS}
-        if model_id not in valid_names:
+        if model_id not in _VALID_MODEL_NAMES:
             logger.warning(f"알 수 없는 모델 '{model_id}', 기본 모델 '{DEFAULT_MODEL}'로 대체합니다.")
             return DEFAULT_MODEL
         return model_id
@@ -144,6 +144,15 @@ JSON 형식으로만 응답해주세요. 다른 설명 없이 배열만 반환�
             target_length=target_length
         )
 
+    @staticmethod
+    def _normalize_opinions(raw: list) -> Optional[List[str]]:
+        if not isinstance(raw, list) or len(raw) == 0:
+            return None
+        result = list(raw)
+        while len(result) < 5:
+            result.append("의견을 생성할 수 없습니다.")
+        return result[:5]
+
     def _parse_response(self, response_text: str) -> List[str]:
         if not response_text or not response_text.strip():
             return ["의견을 생성할 수 없습니다."] * 5
@@ -152,13 +161,9 @@ JSON 형식으로만 응답해주세요. 다른 설명 없이 배열만 반환�
 
         # 1차: 직접 JSON 파싱
         try:
-            opinions = json.loads(cleaned_text)
-            if isinstance(opinions, list) and len(opinions) >= 5:
-                return opinions[:5]
-            elif isinstance(opinions, list) and len(opinions) > 0:
-                while len(opinions) < 5:
-                    opinions.append("의견을 생성할 수 없습니다.")
-                return opinions[:5]
+            parsed = self._normalize_opinions(json.loads(cleaned_text))
+            if parsed:
+                return parsed
         except json.JSONDecodeError:
             pass
 
@@ -166,13 +171,9 @@ JSON 형식으로만 응답해주세요. 다른 설명 없이 배열만 반환�
         json_match = re.search(r'\[[\s\S]*?\]', cleaned_text, re.DOTALL)
         if json_match:
             try:
-                opinions = json.loads(json_match.group())
-                if isinstance(opinions, list) and len(opinions) >= 5:
-                    return opinions[:5]
-                elif isinstance(opinions, list) and len(opinions) > 0:
-                    while len(opinions) < 5:
-                        opinions.append("의견을 생성할 수 없습니다.")
-                    return opinions[:5]
+                parsed = self._normalize_opinions(json.loads(json_match.group()))
+                if parsed:
+                    return parsed
             except json.JSONDecodeError:
                 pass
 
