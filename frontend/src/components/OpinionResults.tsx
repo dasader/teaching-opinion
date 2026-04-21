@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { copyToClipboard } from '../utils/clipboard'
 
 interface OpinionResultsProps {
@@ -7,9 +7,14 @@ interface OpinionResultsProps {
   isLoading: boolean
 }
 
+export interface OpinionResultsHandle {
+  triggerCopy: (index: number) => void
+}
+
 const CIRCLE_NUMS = ['①', '②', '③', '④', '⑤']
 
-const OpinionResults = ({ opinions, onRefresh, isLoading }: OpinionResultsProps) => {
+const OpinionResults = forwardRef<OpinionResultsHandle, OpinionResultsProps>(
+({ opinions, onRefresh, isLoading }, ref) => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -30,6 +35,12 @@ const OpinionResults = ({ opinions, onRefresh, isLoading }: OpinionResultsProps)
       }, 2000)
     }
   }, [])
+
+  useImperativeHandle(ref, () => ({
+    triggerCopy: (index: number) => {
+      if (opinions[index]) handleCopy(opinions[index], index)
+    },
+  }), [opinions, handleCopy])
 
   if (opinions.length === 0) {
     return (
@@ -282,5 +293,7 @@ const OpinionResults = ({ opinions, onRefresh, isLoading }: OpinionResultsProps)
     </div>
   )
 }
+
+})
 
 export default OpinionResults

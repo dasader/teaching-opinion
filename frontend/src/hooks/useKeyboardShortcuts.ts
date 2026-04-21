@@ -46,8 +46,10 @@ export const useKeyboardShortcuts = ({
         return
       }
 
-      // 1-5: 해당 번호 의견 복사
+      // 1-5: 해당 번호 의견 복사 (입력 필드 포커스 중에는 비활성)
       if (e.key >= '1' && e.key <= '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const tag = (document.activeElement as HTMLElement)?.tagName.toLowerCase()
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return
         const index = parseInt(e.key) - 1
         onCopyOpinion(index)
         return

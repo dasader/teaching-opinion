@@ -1,12 +1,15 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useRef } from 'react'
 import StudentInfoForm from './components/StudentInfoForm'
 import OpinionResults from './components/OpinionResults'
+import type { OpinionResultsHandle } from './components/OpinionResults'
 import ModelSelector from './components/ModelSelector'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import api from './utils/api'
 import type { StudentInfo, OpinionData } from './types'
 
 const App = () => {
+  const opinionsRef = useRef<OpinionResultsHandle>(null)
+
   const [studentInfo, setStudentInfo] = useState<StudentInfo>({
     name: '',
     goodSubjects: [],
@@ -75,12 +78,8 @@ const App = () => {
   }, [initialStudentInfo])
 
   const handleCopyOpinion = useCallback((index: number) => {
-    if (opinions[index]) {
-      navigator.clipboard.writeText(opinions[index]).catch(() => {
-        setError('클립보드 복사에 실패했습니다.')
-      })
-    }
-  }, [opinions])
+    opinionsRef.current?.triggerCopy(index)
+  }, [])
 
   const handleModelChange = useCallback((modelName: string) => {
     setStudentInfo((prev) => ({ ...prev, modelName }))
@@ -176,6 +175,7 @@ const App = () => {
         style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
       >
         <OpinionResults
+          ref={opinionsRef}
           opinions={opinions}
           onRefresh={handleRefresh}
           isLoading={isLoading}
