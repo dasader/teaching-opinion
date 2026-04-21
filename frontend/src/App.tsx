@@ -14,7 +14,7 @@ const App = () => {
     personality: [],
     characteristics: '',
     targetLength: 75,
-    modelName: 'gemini-2.5-flash',
+    modelName: 'gemini-3-flash-preview',
   })
   const [opinions, setOpinions] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -27,7 +27,7 @@ const App = () => {
     personality: [],
     characteristics: '',
     targetLength: 75,
-    modelName: 'gemini-2.5-flash',
+    modelName: 'gemini-3-flash-preview',
   }), [])
 
   const handleGenerate = useCallback(async () => {

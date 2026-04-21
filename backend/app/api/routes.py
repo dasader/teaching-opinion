@@ -20,7 +20,7 @@ class OpinionRequest(BaseModel):
     personality: List[str] = Field(default_factory=list)
     characteristics: Optional[str] = Field(None, max_length=40)
     target_length: int = Field(75, ge=50, le=100)
-    model_name: str = Field("gemini-2.5-flash")
+    model_name: str = Field("gemini-3-flash-preview")
 
 
 class OpinionResponse(BaseModel):

@@ -9,11 +9,10 @@ logger = logging.getLogger(__name__)
 
 # 최신 안정 모델 목록 (업데이트 시 여기만 수정)
 CURATED_MODELS = [
-    {"name": "gemini-2.5-flash", "display_name": "Gemini 2.5 Flash (빠름 · 권장)"},
-    {"name": "gemini-2.5-pro",   "display_name": "Gemini 2.5 Pro (고품질)"},
-    {"name": "gemini-2.5-flash-lite", "display_name": "Gemini 2.5 Flash Lite (경량)"},
+    {"name": "gemini-3-flash-preview", "display_name": "Gemini 3 Flash Preview (빠름 · 권장)"},
+    {"name": "gemini-3-flash-lite-preview", "display_name": "Gemini 3 Flash Lite Preview (경량)"},
 ]
-DEFAULT_MODEL = "gemini-2.5-flash"
+DEFAULT_MODEL = "gemini-3-flash-preview"
 
 
 class GeminiService:

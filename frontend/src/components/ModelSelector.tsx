@@ -13,9 +13,8 @@ interface Model {
 }
 
 const FALLBACK_MODELS: Model[] = [
-  { name: 'gemini-2.5-flash', full_name: 'models/gemini-2.5-flash', display_name: 'Gemini 2.5 Flash (빠름 · 권장)' },
-  { name: 'gemini-2.5-pro', full_name: 'models/gemini-2.5-pro', display_name: 'Gemini 2.5 Pro (고품질)' },
-  { name: 'gemini-2.5-flash-lite', full_name: 'models/gemini-2.5-flash-lite', display_name: 'Gemini 2.5 Flash Lite (경량)' },
+  { name: 'gemini-3-flash-preview', full_name: 'models/gemini-3-flash-preview', display_name: 'Gemini 3 Flash Preview (빠름 · 권장)' },
+  { name: 'gemini-3-flash-lite-preview', full_name: 'models/gemini-3-flash-lite-preview', display_name: 'Gemini 3 Flash Lite Preview (경량)' },
 ]
 
 const ModelSelector = ({ modelName, onChange }: ModelSelectorProps) => {
