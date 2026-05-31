@@ -1,35 +1,24 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 from typing import List
-import logging
-
-logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
+
     gemini_api_key: str
     cors_origins: List[str] = ["http://localhost:3000", "http://localhost:80"]
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
-    
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._validate()
-    
-    def _validate(self) -> None:
-        """환경 변수 검증"""
-        if not self.gemini_api_key or not self.gemini_api_key.strip():
+
+    @field_validator("gemini_api_key")
+    @classmethod
+    def _require_api_key(cls, value: str) -> str:
+        if not value or not value.strip():
             raise ValueError(
                 "GEMINI_API_KEY 환경 변수가 설정되지 않았습니다. "
                 ".env 파일에 GEMINI_API_KEY를 설정해주세요."
             )
-        
-        if not self.cors_origins:
-            logger.warning("CORS_ORIGINS가 설정되지 않았습니다. 기본값을 사용합니다.")
-        
-        logger.info("환경 변수 검증 완료")
+        return value
 
 
-settings = Settings()
+settings = Settings()  # type: ignore[call-arg]  # pydantic-settings가 .env/환경변수에서 주입
 

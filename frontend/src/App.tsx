@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useRef } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import StudentInfoForm from './components/StudentInfoForm'
 import OpinionResults from './components/OpinionResults'
 import type { OpinionResultsHandle } from './components/OpinionResults'
@@ -7,31 +7,25 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import api from './utils/api'
 import type { StudentInfo, OpinionData } from './types'
 
+const INITIAL_STUDENT_INFO: StudentInfo = {
+  name: '',
+  goodSubjects: [],
+  weakSubjects: [],
+  personality: [],
+  characteristics: '',
+  targetLength: 75,
+  modelName: 'gemini-3.5-flash',
+}
+
 const App = () => {
   const opinionsRef = useRef<OpinionResultsHandle>(null)
+  const nameInputRef = useRef<HTMLInputElement>(null)
+  const characteristicsInputRef = useRef<HTMLTextAreaElement>(null)
 
-  const [studentInfo, setStudentInfo] = useState<StudentInfo>({
-    name: '',
-    goodSubjects: [],
-    weakSubjects: [],
-    personality: [],
-    characteristics: '',
-    targetLength: 75,
-    modelName: 'gemini-3-flash-preview',
-  })
+  const [studentInfo, setStudentInfo] = useState<StudentInfo>(INITIAL_STUDENT_INFO)
   const [opinions, setOpinions] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const initialStudentInfo = useMemo<StudentInfo>(() => ({
-    name: '',
-    goodSubjects: [],
-    weakSubjects: [],
-    personality: [],
-    characteristics: '',
-    targetLength: 75,
-    modelName: 'gemini-3-flash-preview',
-  }), [])
 
   const handleGenerate = useCallback(async () => {
     const hasInput =
@@ -72,10 +66,10 @@ const App = () => {
   }, [opinions.length, handleGenerate])
 
   const handleReset = useCallback(() => {
-    setStudentInfo(initialStudentInfo)
+    setStudentInfo(INITIAL_STUDENT_INFO)
     setOpinions([])
     setError(null)
-  }, [initialStudentInfo])
+  }, [])
 
   const handleCopyOpinion = useCallback((index: number) => {
     opinionsRef.current?.triggerCopy(index)
@@ -89,11 +83,16 @@ const App = () => {
     setStudentInfo(info)
   }, [])
 
+  const handleFocusName = useCallback(() => nameInputRef.current?.focus(), [])
+  const handleFocusCharacteristics = useCallback(() => characteristicsInputRef.current?.focus(), [])
+
   useKeyboardShortcuts({
     onGenerate: handleGenerate,
     onRefresh: handleRefresh,
     onReset: handleReset,
     onCopyOpinion: handleCopyOpinion,
+    onFocusName: handleFocusName,
+    onFocusCharacteristics: handleFocusCharacteristics,
   })
 
   return (
@@ -165,6 +164,8 @@ const App = () => {
             onGenerate={handleGenerate}
             isLoading={isLoading}
             error={error}
+            nameInputRef={nameInputRef}
+            characteristicsInputRef={characteristicsInputRef}
           />
         </div>
       </div>

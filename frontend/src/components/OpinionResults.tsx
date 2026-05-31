@@ -236,7 +236,7 @@ const OpinionResults = forwardRef<OpinionResultsHandle, OpinionResultsProps>(
                     flexShrink: 0,
                   }}
                 >
-                  {CIRCLE_NUMS[index]}
+                  {CIRCLE_NUMS[index] ?? `(${index + 1})`}
                 </span>
 
                 <button
@@ -292,8 +292,6 @@ const OpinionResults = forwardRef<OpinionResultsHandle, OpinionResultsProps>(
       </div>
     </div>
   )
-}
-
 })
 
 export default OpinionResults

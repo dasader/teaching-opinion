@@ -5,6 +5,8 @@ interface UseKeyboardShortcutsProps {
   onRefresh: () => void
   onReset: () => void
   onCopyOpinion: (index: number) => void
+  onFocusName: () => void
+  onFocusCharacteristics: () => void
 }
 
 export const useKeyboardShortcuts = ({
@@ -12,18 +14,20 @@ export const useKeyboardShortcuts = ({
   onRefresh,
   onReset,
   onCopyOpinion,
+  onFocusName,
+  onFocusCharacteristics,
 }: UseKeyboardShortcutsProps) => {
   // ref를 사용하여 최신 콜백 참조 유지 (의존성 배열 제거)
-  const callbacksRef = useRef({ onGenerate, onRefresh, onReset, onCopyOpinion })
-  
+  const callbacksRef = useRef({ onGenerate, onRefresh, onReset, onCopyOpinion, onFocusName, onFocusCharacteristics })
+
   // 콜백이 변경될 때마다 ref 업데이트
   useEffect(() => {
-    callbacksRef.current = { onGenerate, onRefresh, onReset, onCopyOpinion }
-  }, [onGenerate, onRefresh, onReset, onCopyOpinion])
+    callbacksRef.current = { onGenerate, onRefresh, onReset, onCopyOpinion, onFocusName, onFocusCharacteristics }
+  }, [onGenerate, onRefresh, onReset, onCopyOpinion, onFocusName, onFocusCharacteristics])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const { onGenerate, onRefresh, onReset, onCopyOpinion } = callbacksRef.current
+      const { onGenerate, onRefresh, onReset, onCopyOpinion, onFocusName, onFocusCharacteristics } = callbacksRef.current
 
       // Ctrl/Cmd + Enter: 의견 생성
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -43,6 +47,18 @@ export const useKeyboardShortcuts = ({
       if (e.key === 'Escape') {
         e.preventDefault()
         onReset()
+        return
+      }
+
+      // Ctrl + 1 / Ctrl + 2: 이름 / 특징 입력 포커스
+      if (e.ctrlKey && e.key === '1') {
+        e.preventDefault()
+        onFocusName()
+        return
+      }
+      if (e.ctrlKey && e.key === '2') {
+        e.preventDefault()
+        onFocusCharacteristics()
         return
       }
 

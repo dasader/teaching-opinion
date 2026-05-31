@@ -20,7 +20,7 @@ class OpinionRequest(BaseModel):
     personality: List[str] = Field(default_factory=list)
     characteristics: Optional[str] = Field(None, max_length=40)
     target_length: int = Field(75, ge=50, le=100)
-    model_name: str = Field("gemini-3-flash-preview")
+    model_name: str = Field("gemini-3.5-flash")
 
 
 class OpinionResponse(BaseModel):
@@ -51,9 +51,7 @@ async def generate_opinions(request: OpinionRequest):
             detail="최소 하나의 항목(이름, 잘하는 과목, 못하는 과목, 성격, 특징)은 입력해야 합니다."
         )
     
-    # 답변 길이를 50-100 범위로 제한 (Pydantic에서 이미 검증되지만 이중 체크)
-    target_length = max(50, min(100, request.target_length))
-    
+    # target_length는 Field(ge=50, le=100)로 Pydantic이 이미 범위를 보장
     try:
         opinions = gemini_service.generate_opinions(
             model_name=request.model_name,
@@ -62,9 +60,9 @@ async def generate_opinions(request: OpinionRequest):
             weak_subjects=request.weak_subjects,
             personality=request.personality,
             characteristics=request.characteristics.strip() if request.characteristics else None,
-            target_length=target_length,
+            target_length=request.target_length,
         )
-        logger.info(f"의견 생성 성공: 모델={request.model_name}, 길이={target_length}")
+        logger.info(f"의견 생성 성공: 모델={request.model_name}, 길이={request.target_length}")
         return OpinionResponse(opinions=opinions)
     except ValueError as e:
         logger.warning(f"의견 생성 검증 오류: {str(e)}")

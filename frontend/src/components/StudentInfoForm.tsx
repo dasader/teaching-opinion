@@ -1,4 +1,5 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useCallback } from 'react'
+import type { RefObject } from 'react'
 import type { StudentInfo } from '../types'
 
 interface StudentInfoFormProps {
@@ -7,6 +8,8 @@ interface StudentInfoFormProps {
   onGenerate: () => void
   isLoading: boolean
   error: string | null
+  nameInputRef: RefObject<HTMLInputElement>
+  characteristicsInputRef: RefObject<HTMLTextAreaElement>
 }
 
 const SUBJECTS = ['국어', '영어', '수학', '과학', '사회', '역사', '체육', '음악', '미술', '기술']
@@ -57,42 +60,53 @@ const SectionHeader = ({ label, count, hint, onReset }: SectionHeaderProps) => (
   </div>
 )
 
-const StudentInfoForm = ({ studentInfo, onChange, onGenerate, isLoading, error }: StudentInfoFormProps) => {
-  const nameInputRef = useRef<HTMLInputElement>(null)
-  const characteristicsInputRef = useRef<HTMLTextAreaElement>(null)
+interface ChipSectionProps {
+  label: string
+  items: string[]
+  selected: string[]
+  chipClass: string
+  onToggle: (item: string) => void
+  onReset: () => void
+}
 
+const ChipSection = ({ label, items, selected, chipClass, onToggle, onReset }: ChipSectionProps) => (
+  <div>
+    <SectionHeader label={label} count={selected.length} onReset={onReset} />
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.38rem' }}>
+      {items.map((item) => (
+        <button
+          key={item}
+          type="button"
+          onClick={() => onToggle(item)}
+          className={`chip ${chipClass}${selected.includes(item) ? ' active' : ''}`}
+          aria-pressed={selected.includes(item)}
+        >
+          {item}
+        </button>
+      ))}
+    </div>
+  </div>
+)
+
+const StudentInfoForm = ({ studentInfo, onChange, onGenerate, isLoading, error, nameInputRef, characteristicsInputRef }: StudentInfoFormProps) => {
   const toggleArrayItem = useCallback((array: string[], item: string) => {
     return array.includes(item) ? array.filter((i) => i !== item) : [...array, item]
   }, [])
 
+  // 'good'/'weak'는 서로 배타적 — 토글하는 쪽에 넣고 반대쪽에서는 제거
   const handleSubjectToggle = useCallback((subject: string, type: 'good' | 'weak') => {
-    if (type === 'good') {
-      onChange((prev) => ({
-        ...prev,
-        goodSubjects: toggleArrayItem(prev.goodSubjects, subject),
-        weakSubjects: prev.weakSubjects.filter((s) => s !== subject),
-      }))
-    } else {
-      onChange((prev) => ({
-        ...prev,
-        weakSubjects: toggleArrayItem(prev.weakSubjects, subject),
-        goodSubjects: prev.goodSubjects.filter((s) => s !== subject),
-      }))
-    }
+    const toggleKey = type === 'good' ? 'goodSubjects' : 'weakSubjects'
+    const clearKey = type === 'good' ? 'weakSubjects' : 'goodSubjects'
+    onChange((prev) => ({
+      ...prev,
+      [toggleKey]: toggleArrayItem(prev[toggleKey], subject),
+      [clearKey]: prev[clearKey].filter((s) => s !== subject),
+    }))
   }, [onChange, toggleArrayItem])
 
   const handlePersonalityToggle = useCallback((trait: string) => {
     onChange((prev) => ({ ...prev, personality: toggleArrayItem(prev.personality, trait) }))
   }, [onChange, toggleArrayItem])
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === '1') { e.preventDefault(); nameInputRef.current?.focus() }
-      if (e.ctrlKey && e.key === '2') { e.preventDefault(); characteristicsInputRef.current?.focus() }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
 
   const divider = (
     <div style={{ height: '1px', background: 'var(--ink-border)', margin: '0 -1.5rem' }} />
@@ -155,74 +169,38 @@ const StudentInfoForm = ({ studentInfo, onChange, onGenerate, isLoading, error }
       {divider}
 
       {/* ── Good subjects ── */}
-      <div>
-        <SectionHeader
-          label="잘하는 과목"
-          count={studentInfo.goodSubjects.length}
-          onReset={() => onChange((prev) => ({ ...prev, goodSubjects: [] }))}
-        />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.38rem' }}>
-          {SUBJECTS.map((subject) => (
-            <button
-              key={subject}
-              type="button"
-              onClick={() => handleSubjectToggle(subject, 'good')}
-              className={`chip chip-good${studentInfo.goodSubjects.includes(subject) ? ' active' : ''}`}
-              aria-pressed={studentInfo.goodSubjects.includes(subject)}
-            >
-              {subject}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ChipSection
+        label="잘하는 과목"
+        items={SUBJECTS}
+        selected={studentInfo.goodSubjects}
+        chipClass="chip-good"
+        onToggle={(subject) => handleSubjectToggle(subject, 'good')}
+        onReset={() => onChange((prev) => ({ ...prev, goodSubjects: [] }))}
+      />
 
       {divider}
 
       {/* ── Weak subjects ── */}
-      <div>
-        <SectionHeader
-          label="보완 과목"
-          count={studentInfo.weakSubjects.length}
-          onReset={() => onChange((prev) => ({ ...prev, weakSubjects: [] }))}
-        />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.38rem' }}>
-          {SUBJECTS.map((subject) => (
-            <button
-              key={subject}
-              type="button"
-              onClick={() => handleSubjectToggle(subject, 'weak')}
-              className={`chip chip-weak${studentInfo.weakSubjects.includes(subject) ? ' active' : ''}`}
-              aria-pressed={studentInfo.weakSubjects.includes(subject)}
-            >
-              {subject}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ChipSection
+        label="보완 과목"
+        items={SUBJECTS}
+        selected={studentInfo.weakSubjects}
+        chipClass="chip-weak"
+        onToggle={(subject) => handleSubjectToggle(subject, 'weak')}
+        onReset={() => onChange((prev) => ({ ...prev, weakSubjects: [] }))}
+      />
 
       {divider}
 
       {/* ── Personality ── */}
-      <div>
-        <SectionHeader
-          label="성격"
-          count={studentInfo.personality.length}
-          onReset={() => onChange((prev) => ({ ...prev, personality: [] }))}
-        />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.38rem' }}>
-          {PERSONALITY_TRAITS.map((trait) => (
-            <button
-              key={trait}
-              type="button"
-              onClick={() => handlePersonalityToggle(trait)}
-              className={`chip chip-trait${studentInfo.personality.includes(trait) ? ' active' : ''}`}
-              aria-pressed={studentInfo.personality.includes(trait)}
-            >
-              {trait}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ChipSection
+        label="성격"
+        items={PERSONALITY_TRAITS}
+        selected={studentInfo.personality}
+        chipClass="chip-trait"
+        onToggle={handlePersonalityToggle}
+        onReset={() => onChange((prev) => ({ ...prev, personality: [] }))}
+      />
 
       {divider}
 
