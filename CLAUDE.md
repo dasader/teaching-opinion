@@ -45,8 +45,11 @@ GEMINI_API_KEY=<key> uvicorn app.main:app --reload
 cd frontend
 npm install
 npm run dev    # → http://localhost:3000 (프록시: /api → http://backend:8000)
-npm run build  # → dist/
+npm run build  # → dist/ (tsc 타입체크 + vite build)
+npm run lint   # eslint, --max-warnings 0 (경고 1개라도 실패)
 ```
+
+테스트 스위트 없음 (frontend/backend 모두). 검증은 `npm run lint` + `npm run build`(타입체크) + 수동 실행.
 
 ## Architecture
 
@@ -73,7 +76,11 @@ npm run build  # → dist/
 
 **응답 파싱 전략** (`gemini_service.py`): JSON 직접 파싱 → 정규식 추출 → 따옴표 추출 → 라인 파싱 순으로 폴백.
 
-**모델 폴백 순서**: 요청된 모델 → gemini-2.5-flash → gemini-2.5-pro → 첫 번째 사용 가능 모델.
+**큐레이션 모델**: `gemini-3.5-flash` (기본 · 권장), `gemini-3.1-flash-lite` (경량). 알 수 없는 모델 요청 시 기본 모델로 대체.
+
+> **모델 목록 이중 관리 주의**: 모델 목록이 두 곳에 하드코딩됨 — backend `gemini_service.py`의 `CURATED_MODELS`(권위 소스, `/api/available-models`로 서빙)와 frontend `ModelSelector.tsx`의 `FALLBACK_MODELS`(API 호출 실패 시 폴백). 모델 추가/변경 시 **두 파일 모두** 수정. 미동기화 시 API 다운 상황에서 폴백이 잘못된 모델 노출.
+
+> **Gemini SDK/모델 갱신**: 신규 `google-genai` SDK 사용 (`genai.Client()` + `client.models.generate_content`). 레거시 `google-generativeai`·`gemini-1.5/2.0/2.5` 사용 금지. **preview 모델 ID는 예고 없이 종료(shut down)될 수 있음** — 모델 변경 전 `gemini-api-dev` 스킬 또는 docs MCP로 현행/GA ID 확인 필수.
 
 ### Frontend Structure (`frontend/src/`)
 
@@ -100,7 +107,7 @@ npm run build  # → dist/
   "personality": ["성실함"],
   "characteristics": "분석력 뛰어남",  // optional, max 40자
   "target_length": 75,        // 50~100
-  "model_name": "gemini-2.5-flash"
+  "model_name": "gemini-3.5-flash"
 }
 
 // Response

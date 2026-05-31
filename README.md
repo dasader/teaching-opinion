@@ -7,7 +7,7 @@
 
 - 학생 이름, 잘하는 과목, 부족한 과목, 성격, 특징 입력
 - 의견 글자 수 조절 (50~100자)
-- Gemini 모델 선택 (gemini-2.5-flash / gemini-2.5-pro / gemini-2.0-flash)
+- Gemini 모델 선택 (gemini-3.5-flash / gemini-3.1-flash-lite)
 - 5개의 서로 다른 스타일 평어 동시 생성
 - 클립보드 복사 (개별 복사 또는 단축키)
 - 키보드 단축키 지원
@@ -94,7 +94,7 @@ npm run dev
   "personality": ["성실함", "친절함"],
   "characteristics": "분석력이 뛰어남",
   "target_length": 75,
-  "model_name": "gemini-2.5-flash"
+  "model_name": "gemini-3.5-flash"
 }
 
 // Response

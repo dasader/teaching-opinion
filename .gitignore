@@ -35,3 +35,11 @@ dist-ssr/
 .DS_Store
 Thumbs.db
 
+# 로컬 에이전트/툴링 설정
+.claude/
+.cursor/
+.superpowers/
+
+# 생성 산출물 (simplify 보고서 등)
+simplify-report-*.html
+
